@@ -10,7 +10,7 @@ import {
 import {
   doc,
   getDoc,
-  getFirestore,
+  initializeFirestore,
   serverTimestamp,
   setDoc,
   type Firestore,
@@ -36,7 +36,9 @@ export const firebaseApp: FirebaseApp | null = hasFirebaseConfig
   : null;
 
 export const auth = firebaseApp ? getAuth(firebaseApp) : null;
-export const db: Firestore | null = firebaseApp ? getFirestore(firebaseApp) : null;
+export const db: Firestore | null = firebaseApp
+  ? initializeFirestore(firebaseApp, { ignoreUndefinedProperties: true })
+  : null;
 export const firebaseReady = Boolean(firebaseApp && auth && db);
 
 function normalizeSubjects(subjects: Subject[] | undefined): Subject[] {

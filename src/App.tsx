@@ -224,7 +224,7 @@ function App() {
               </button>
             )}
             {authMessage && <p className="auth-message">{authMessage}</p>}
-            {userId && syncMessage && <p className="auth-message">{syncMessage}</p>}
+            {userId && syncMessage && syncState !== 'error' && <p className="auth-message">{syncMessage}</p>}
           </section>
         </section>
       )}
