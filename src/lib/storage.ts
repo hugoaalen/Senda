@@ -1,10 +1,9 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import {
   getAuth,
-  getRedirectResult,
   GoogleAuthProvider,
   onAuthStateChanged,
-  signInWithRedirect,
+  signInWithPopup,
   signOut as firebaseSignOut,
   type User,
 } from 'firebase/auth';
@@ -75,14 +74,13 @@ export function saveLocalState(state: AppState) {
 
 export function subscribeToAuth(callback: (user: User | null) => void) {
   if (!auth) return () => undefined;
-  void getRedirectResult(auth);
   return onAuthStateChanged(auth, callback);
 }
 
 export async function signInWithGoogle() {
   if (!auth) return;
   const provider = new GoogleAuthProvider();
-  await signInWithRedirect(auth, provider);
+  await signInWithPopup(auth, provider);
 }
 
 export async function signOutRemote() {
