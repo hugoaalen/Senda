@@ -1,12 +1,13 @@
 export type SubjectStatus = 'pending' | 'active' | 'passed';
 
-export type SubjectType = 'Básica' | 'Obligatoria' | 'Optativa';
+export type SubjectType = 'Básica' | 'Obligatoria' | 'Optativa' | 'Sin asignar';
 
 export interface Subject {
   id: string;
   name: string;
   type: SubjectType;
   credits: number;
+  convalidated?: boolean;
   itinerary?: string;
   area?: string;
   semester: string;
@@ -52,5 +53,6 @@ export interface ProgressStats {
   passedSubjects: number;
   activeSubjects: number;
   pendingSubjects: number;
+  convalidatedSubjects: number;
   averageGrade: number | null;
 }

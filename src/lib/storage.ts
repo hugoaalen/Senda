@@ -15,8 +15,8 @@ import {
   setDoc,
   type Firestore,
 } from 'firebase/firestore';
-import { initialState } from '../data/seed';
-import type { AppState } from '../types';
+import { convalidatedSubjectIds, initialState, initialSubjects } from '../data/seed';
+import type { AppState, Subject } from '../types';
 
 const STORAGE_KEY = 'senda:v1';
 
@@ -39,9 +39,25 @@ export const auth = firebaseApp ? getAuth(firebaseApp) : null;
 export const db: Firestore | null = firebaseApp ? getFirestore(firebaseApp) : null;
 export const firebaseReady = Boolean(firebaseApp && auth && db);
 
+function normalizeSubjects(subjects: Subject[] | undefined): Subject[] {
+  const sourceSubjects = subjects?.length ? subjects : initialSubjects;
+  const defaultsById = new Map(initialSubjects.map((subject) => [subject.id, subject]));
+
+  return sourceSubjects.map((subject) => {
+    const defaultSubject = defaultsById.get(subject.id);
+    const shouldDefaultConvalidated = subject.convalidated === undefined && convalidatedSubjectIds.has(subject.id);
+
+    return {
+      ...subject,
+      convalidated: subject.convalidated ?? defaultSubject?.convalidated ?? false,
+      status: shouldDefaultConvalidated && subject.status === 'passed' ? 'pending' : subject.status,
+    };
+  });
+}
+
 export function normalizeState(state: Partial<AppState> | null | undefined): AppState {
   return {
-    subjects: state?.subjects?.length ? state.subjects : initialState.subjects,
+    subjects: normalizeSubjects(state?.subjects),
     scenarios: state?.scenarios?.length ? state.scenarios : initialState.scenarios,
     selectedScenarioId: state?.selectedScenarioId ?? initialState.selectedScenarioId,
     settings: {

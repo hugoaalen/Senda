@@ -6,6 +6,7 @@ export function getProgressStats(subjects: AppState['subjects'], subjectsPerSeme
   const passed = subjects.filter((subject) => subject.status === 'passed');
   const active = subjects.filter((subject) => subject.status === 'active');
   const pending = subjects.filter((subject) => subject.status === 'pending');
+  const convalidated = subjects.filter((subject) => subject.convalidated);
   const graded = passed.filter((subject) => typeof subject.grade === 'number');
   const passedCredits = passed.reduce((sum, subject) => sum + subject.credits, 0);
   const pendingCredits = Math.max(0, TOTAL_DEGREE_CREDITS - passedCredits);
@@ -23,6 +24,7 @@ export function getProgressStats(subjects: AppState['subjects'], subjectsPerSeme
     passedSubjects: passed.length,
     activeSubjects: active.length,
     pendingSubjects: pending.length,
+    convalidatedSubjects: convalidated.length,
     averageGrade: graded.length
       ? Number((graded.reduce((sum, subject) => sum + (subject.grade ?? 0), 0) / graded.length).toFixed(2))
       : null,

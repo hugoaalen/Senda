@@ -305,7 +305,7 @@ h3 {
 
 .toolbar {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto auto;
   gap: 10px;
 }
 
@@ -362,6 +362,10 @@ input {
   background: #fff3d5;
 }
 
+.subject-card.convalidated {
+  border-color: rgba(45, 104, 155, 0.28);
+}
+
 .subject-main {
   justify-content: flex-start;
 }
@@ -374,6 +378,10 @@ input {
   font-size: 0.84rem;
   font-weight: 700;
   white-space: pre-line;
+}
+
+.subject-main .convalidated-note {
+  color: #2d689b;
 }
 
 .status-mark {
@@ -389,7 +397,7 @@ input {
 
 .subject-controls {
   display: grid;
-  grid-template-columns: 132px 82px 82px;
+  grid-template-columns: 132px 82px 82px 112px;
   gap: 8px;
   align-items: start;
 }
@@ -412,6 +420,17 @@ input {
   position: absolute;
   right: 16px;
   bottom: 12px;
+}
+
+.toggle-field input {
+  width: 22px;
+  min-height: 22px;
+  accent-color: #1d6f4c;
+}
+
+.convalidated-list span {
+  background: #e4eef7;
+  color: #1d4f7a;
 }
 
 .field {

@@ -7,6 +7,7 @@ import type { Subject, SubjectStatus, SubjectType } from './types';
 type Tab = 'dashboard' | 'subjects' | 'scenarios';
 type Filter = 'all' | SubjectStatus;
 type TypeFilter = 'all' | SubjectType;
+type ConvalidatedFilter = 'all' | 'convalidated' | 'not-convalidated';
 
 const statusLabel: Record<SubjectStatus, string> = {
   pending: 'Pendiente',
@@ -52,6 +53,7 @@ function App() {
   const [tab, setTab] = useState<Tab>('dashboard');
   const [filter, setFilter] = useState<Filter>('all');
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
+  const [convalidatedFilter, setConvalidatedFilter] = useState<ConvalidatedFilter>('all');
   const [query, setQuery] = useState('');
 
   const scenarioLoad = selectedScenario ? getScenarioLoad(state, selectedScenario) : null;
@@ -63,12 +65,21 @@ function App() {
     return state.subjects.filter((subject) => {
       const matchesFilter = filter === 'all' || subject.status === filter;
       const matchesType = typeFilter === 'all' || subject.type === typeFilter;
+      const matchesConvalidated =
+        convalidatedFilter === 'all' ||
+        (convalidatedFilter === 'convalidated' && subject.convalidated) ||
+        (convalidatedFilter === 'not-convalidated' && !subject.convalidated);
       const haystack = normalizeSearch(
         `${subject.name} ${subject.type} ${subject.itinerary ?? ''} ${subject.area ?? ''}`,
       );
-      return matchesFilter && matchesType && haystack.includes(normalizedQuery);
+      return matchesFilter && matchesType && matchesConvalidated && haystack.includes(normalizedQuery);
     });
-  }, [filter, query, state.subjects, typeFilter]);
+  }, [convalidatedFilter, filter, query, state.subjects, typeFilter]);
+
+  const convalidatedSubjects = useMemo(
+    () => state.subjects.filter((subject) => subject.convalidated),
+    [state.subjects],
+  );
 
   return (
     <main className="app-shell">
@@ -112,7 +123,22 @@ function App() {
             <Metric label="Aprobadas" value={stats.passedSubjects} />
             <Metric label="Cursando" value={stats.activeSubjects} />
             <Metric label="Pendientes" value={stats.pendingSubjects} />
+            <Metric label="Convalidadas" value={stats.convalidatedSubjects} />
             <Metric label="Media" value={stats.averageGrade ?? '-'} />
+          </section>
+
+          <section className="panel">
+            <div className="section-title">
+              <div>
+                <p className="eyebrow">Informativo</p>
+                <h2>Asignaturas convalidadas</h2>
+              </div>
+            </div>
+            <div className="planned-list convalidated-list">
+              {convalidatedSubjects.map((subject) => (
+                <span key={subject.id}>{subject.name}</span>
+              ))}
+            </div>
           </section>
 
           <section className="panel">
@@ -225,6 +251,15 @@ function App() {
               <option value="Básica">Básicas</option>
               <option value="Obligatoria">Obligatorias</option>
               <option value="Optativa">Optativas</option>
+              <option value="Sin asignar">Sin asignar</option>
+            </select>
+            <select
+              value={convalidatedFilter}
+              onChange={(event) => setConvalidatedFilter(event.target.value as ConvalidatedFilter)}
+            >
+              <option value="all">Todas</option>
+              <option value="convalidated">Convalidadas</option>
+              <option value="not-convalidated">No convalidadas</option>
             </select>
           </div>
 
@@ -333,7 +368,7 @@ function SubjectCard({
   const Icon = statusIcon[subject.status];
 
   return (
-    <article className={`subject-card ${subject.status}`}>
+    <article className={`subject-card ${subject.status} ${subject.convalidated ? 'convalidated' : ''}`}>
       <div className="subject-main">
         <div className="status-mark">
           <Icon size={18} />
@@ -343,6 +378,7 @@ function SubjectCard({
           <p>
             {subject.type} · {subject.credits} créditos · {subject.semester}
           </p>
+          {subject.convalidated && <small className="convalidated-note">Convalidada · no cuenta como superada</small>}
           {subject.recommended && <small>Recomendado: {subject.recommended}</small>}
         </div>
       </div>
@@ -372,6 +408,14 @@ function SubjectCard({
             onChange={(event) =>
               onUpdate({ grade: event.target.value === '' ? undefined : Number(event.target.value) })
             }
+          />
+        </label>
+        <label className="toggle-field">
+          <span>Convalidada</span>
+          <input
+            type="checkbox"
+            checked={Boolean(subject.convalidated)}
+            onChange={(event) => onUpdate({ convalidated: event.target.checked })}
           />
         </label>
       </div>

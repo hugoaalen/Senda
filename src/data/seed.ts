@@ -4,12 +4,14 @@ const difficultyByType = {
   Básica: 3,
   Obligatoria: 4,
   Optativa: 3,
+  'Sin asignar': 3,
 } as const;
 
 const priorityByType = {
   Básica: 4,
   Obligatoria: 5,
   Optativa: 2,
+  'Sin asignar': 2,
 } as const;
 
 const slug = (value: string) =>
@@ -19,6 +21,18 @@ const slug = (value: string) =>
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
+
+export const convalidatedSubjectIds = new Set([
+  'fundamentos-de-programacion',
+  'practicas-de-programacion',
+  'trabajo-en-equipo-en-la-red',
+  'diseno-y-programacion-orientada-a-objetos',
+  'practicas-en-empresa',
+  'uso-de-bases-de-datos',
+  'diseno-de-bases-de-datos',
+  'iniciativa-emprendedora',
+  'ingenieria-del-software',
+]);
 
 const subject = (
   name: string,
@@ -44,7 +58,7 @@ const subject = (
   priority: priorityByType[type],
 });
 
-export const initialSubjects: Subject[] = [
+const rawInitialSubjects: Subject[] = [
   subject('Fundamentos de programación', 'Básica', 6, 'Todos', undefined, 'Informática'),
   subject('Prácticas de programación', 'Básica', 6, 'Todos', 'Fundamentos de programación', 'Informática'),
   subject('Administración y gestión de organizaciones', 'Básica', 6, 'Todos', undefined, 'Empresa', undefined, true),
@@ -54,10 +68,10 @@ export const initialSubjects: Subject[] = [
   subject('Fundamentos de computadores', 'Básica', 6, 'Todos', undefined, 'Informática'),
   subject('Fundamentos físicos de la informática', 'Básica', 6, 'Todos', 'Álgebra\nAnálisis matemático', 'Física'),
   subject('Lógica', 'Básica', 6, 'Todos', undefined, 'Matemáticas', undefined, true),
-  subject('Trabajo en equipo en la red', 'Básica', 6, 'Todos', 'Fundamentos de programación', 'Informática', undefined, true),
+  subject('Trabajo en equipo en la red', 'Básica', 6, 'Todos', 'Fundamentos de programación', 'Informática'),
   subject('Diseño de bases de datos', 'Obligatoria', 6, 'Todos', 'Uso de base de datos'),
   subject('Diseño y programación orientada a objetos', 'Obligatoria', 6, 'Todos', 'Ingeniería del software\nPrácticas de programación'),
-  subject('Ingeniería del software', 'Obligatoria', 6, 'Todos', undefined, undefined, undefined, true),
+  subject('Ingeniería del software', 'Obligatoria', 6, 'Todos'),
   subject('Uso de bases de datos', 'Obligatoria', 6, 'Todos', 'Diseño y programación OO'),
   subject('Administración de redes y sistemas operativos', 'Obligatoria', 6, 'Todos', 'Sistemas operativos'),
   subject('Competencia comunicativa para profesionales de las TIC', 'Obligatoria', 6, 'Todos', undefined, undefined, undefined, true),
@@ -72,7 +86,7 @@ export const initialSubjects: Subject[] = [
   subject('Sistemas operativos', 'Obligatoria', 6, 'Todos', 'Estructura de computadores\nPrácticas de programación'),
   subject('Redes y aplicaciones Internet', 'Obligatoria', 6, 'Todos', 'Diseño y programación OO\nSistemas operativos'),
   subject('Trabajo final de grado', 'Obligatoria', 12, 'Todos', 'Asignaturas del itinerario correspondiente / Haber superado 180 créditos / Gestión de proyectos', undefined, 'Ingeniería de computadores\nIngeniería del software\nComputación\nTecnologías de la información\nSistemas de información'),
-  subject('Iniciativa emprendedora', 'Optativa', 6, 'Septiembre-febrero', 'Gestión de Proyectos', undefined, 'Sistemas de información'),
+  subject('Iniciativa emprendedora', 'Sin asignar', 6, 'Septiembre-febrero', 'Gestión de Proyectos', undefined, 'Sistemas de información'),
   subject('Prácticas en empresa', 'Optativa', 12, 'Todos', 'Haber superado 120 créditos'),
   subject('Análisis y diseño de patrones', 'Optativa', 6, 'Todos', 'Diseño y programación OO\nIngeniería del Software', undefined, 'Ingeniería del software'),
   subject('Aprendizaje computacional', 'Optativa', 6, 'Febrero-junio', 'Inteligencia artificial', undefined, 'Computación'),
@@ -101,6 +115,12 @@ export const initialSubjects: Subject[] = [
   subject('Sistemas empotrados', 'Optativa', 6, 'Septiembre-febrero', 'Redes y aplicaciones Internet\nPrácticas de programación', undefined, 'Ingeniería de computadores'),
   subject('Uso de sistemas de información en las organizaciones', 'Optativa', 6, 'Febrero-junio', 'Fundamentos de sistemas de información', undefined, 'Sistemas de información'),
 ];
+
+export const initialSubjects: Subject[] = rawInitialSubjects.map((initialSubject) =>
+  convalidatedSubjectIds.has(initialSubject.id)
+    ? { ...initialSubject, convalidated: true, status: 'pending' }
+    : initialSubject,
+);
 
 export const initialState: AppState = {
   subjects: initialSubjects,
