@@ -47,6 +47,7 @@ function App() {
     toggleSubjectInScenario,
     selectScenario,
     updateSubjectsPerSemester,
+    resetToBaseState,
     signIn,
     signOut,
   } = useSendaState();
@@ -223,6 +224,19 @@ function App() {
                 Salir
               </button>
             )}
+            <button
+              className="ghost-button danger-button"
+              onClick={() => {
+                const confirmed = window.confirm(
+                  'Esto reemplazará tus datos actuales por la plantilla inicial vacía. Si has iniciado sesión, también se sincronizará en tu cuenta. ¿Continuar?',
+                );
+                if (confirmed) {
+                  resetToBaseState();
+                }
+              }}
+            >
+              Restaurar plantilla inicial
+            </button>
             {authMessage && <p className="auth-message">{authMessage}</p>}
             {userId && syncMessage && syncState !== 'error' && <p className="auth-message">{syncMessage}</p>}
           </section>

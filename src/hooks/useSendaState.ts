@@ -3,6 +3,7 @@ import type { AppState, Scenario, Subject, SubjectStatus } from '../types';
 import { getProgressStats } from '../lib/stats';
 import {
   firebaseReady,
+  getBaseState,
   loadLocalState,
   loadRemoteState,
   saveLocalState,
@@ -134,6 +135,11 @@ export function useSendaState() {
     }));
   };
 
+  const resetToBaseState = () => {
+    setState(getBaseState());
+    setSyncMessage(userId ? 'Datos base cargados. Sincronizando...' : 'Datos base cargados en este navegador.');
+  };
+
   const signIn = async () => {
     if (!firebaseReady) return;
 
@@ -172,6 +178,7 @@ export function useSendaState() {
     toggleSubjectInScenario,
     selectScenario,
     updateSubjectsPerSemester,
+    resetToBaseState,
     signIn,
     signOut,
   };

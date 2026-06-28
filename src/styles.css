@@ -138,6 +138,11 @@ h3 {
   color: #f8f3ea;
 }
 
+.danger-button {
+  border-color: rgba(180, 75, 50, 0.24);
+  color: #8b3322;
+}
+
 .stack {
   display: grid;
   gap: 14px;

@@ -15,7 +15,7 @@ import {
   setDoc,
   type Firestore,
 } from 'firebase/firestore';
-import { convalidatedSubjectIds, initialState, initialSubjects } from '../data/seed';
+import { initialState, initialSubjects } from '../data/seed';
 import type { AppState, Subject } from '../types';
 
 const STORAGE_KEY = 'senda:v1';
@@ -41,18 +41,20 @@ export const db: Firestore | null = firebaseApp
   : null;
 export const firebaseReady = Boolean(firebaseApp && auth && db);
 
+export function getBaseState(): AppState {
+  return normalizeState(structuredClone(initialState));
+}
+
 function normalizeSubjects(subjects: Subject[] | undefined): Subject[] {
   const sourceSubjects = subjects?.length ? subjects : initialSubjects;
   const defaultsById = new Map(initialSubjects.map((subject) => [subject.id, subject]));
 
   return sourceSubjects.map((subject) => {
     const defaultSubject = defaultsById.get(subject.id);
-    const shouldDefaultConvalidated = subject.convalidated === undefined && convalidatedSubjectIds.has(subject.id);
 
     return {
       ...subject,
       convalidated: subject.convalidated ?? defaultSubject?.convalidated ?? false,
-      status: shouldDefaultConvalidated && subject.status === 'passed' ? 'pending' : subject.status,
     };
   });
 }
@@ -75,14 +77,14 @@ export function loadLocalState(): AppState {
   const raw = window.localStorage.getItem(STORAGE_KEY);
 
   if (!raw) {
-    return initialState;
+    return getBaseState();
   }
 
   try {
     const parsed = JSON.parse(raw) as AppState;
     return normalizeState(parsed);
   } catch {
-    return initialState;
+    return getBaseState();
   }
 }
 
