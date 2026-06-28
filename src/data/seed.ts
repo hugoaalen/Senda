@@ -110,6 +110,7 @@ export const initialState: AppState = {
   selectedScenarioId: 'realista-2026-1',
   settings: {
     subjectsPerSemester: 3,
+    themeMode: 'system',
   },
   scenarios: [
     {

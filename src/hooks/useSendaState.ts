@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { AppState, Scenario, Subject, SubjectStatus } from '../types';
+import type { AppState, Scenario, Subject, SubjectStatus, ThemeMode } from '../types';
 import { getProgressStats } from '../lib/stats';
 import {
   firebaseReady,
@@ -135,6 +135,16 @@ export function useSendaState() {
     }));
   };
 
+  const updateThemeMode = (themeMode: ThemeMode) => {
+    setState((current) => ({
+      ...current,
+      settings: {
+        ...current.settings,
+        themeMode,
+      },
+    }));
+  };
+
   const resetToBaseState = () => {
     setState(getBaseState());
     setSyncMessage(userId ? 'Datos base cargados. Sincronizando...' : 'Datos base cargados en este navegador.');
@@ -178,6 +188,7 @@ export function useSendaState() {
     toggleSubjectInScenario,
     selectScenario,
     updateSubjectsPerSemester,
+    updateThemeMode,
     resetToBaseState,
     signIn,
     signOut,

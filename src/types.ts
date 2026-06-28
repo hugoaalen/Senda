@@ -2,6 +2,8 @@ export type SubjectStatus = 'pending' | 'active' | 'passed';
 
 export type SubjectType = 'Básica' | 'Obligatoria' | 'Optativa' | 'Sin asignar';
 
+export type ThemeMode = 'system' | 'light' | 'dark';
+
 export interface Subject {
   id: string;
   name: string;
@@ -39,6 +41,7 @@ export interface AppState {
   selectedScenarioId: string;
   settings: {
     subjectsPerSemester: number;
+    themeMode: ThemeMode;
   };
 }
 

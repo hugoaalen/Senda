@@ -1,8 +1,8 @@
-import { BookOpenCheck, CalendarDays, Check, Circle, Gauge, GraduationCap, ListFilter, WifiOff } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { BookOpenCheck, CalendarDays, Check, Circle, Gauge, GraduationCap, ListFilter, Monitor, Moon, Sun, WifiOff } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSendaState } from './hooks/useSendaState';
 import { getScenarioLoad } from './lib/stats';
-import type { Subject, SubjectStatus, SubjectType } from './types';
+import type { Subject, SubjectStatus, SubjectType, ThemeMode } from './types';
 
 type Tab = 'dashboard' | 'subjects' | 'scenarios';
 type Filter = 'all' | SubjectStatus;
@@ -30,6 +30,12 @@ const normalizeSearch = (value: string) =>
 const formatDecimal = (value: number) =>
   new Intl.NumberFormat('es-ES', { maximumFractionDigits: 1 }).format(value);
 
+const themeOptions: Array<{ icon: typeof Monitor; label: string; value: ThemeMode }> = [
+  { icon: Monitor, label: 'Sistema', value: 'system' },
+  { icon: Sun, label: 'Claro', value: 'light' },
+  { icon: Moon, label: 'Oscuro', value: 'dark' },
+];
+
 function App() {
   const {
     state,
@@ -47,6 +53,7 @@ function App() {
     toggleSubjectInScenario,
     selectScenario,
     updateSubjectsPerSemester,
+    updateThemeMode,
     resetToBaseState,
     signIn,
     signOut,
@@ -59,6 +66,16 @@ function App() {
 
   const scenarioLoad = selectedScenario ? getScenarioLoad(state, selectedScenario) : null;
   const progressPercent = Math.round((stats.passedCredits / stats.totalCredits) * 100);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (state.settings.themeMode === 'system') {
+      root.removeAttribute('data-theme');
+      return;
+    }
+
+    root.dataset.theme = state.settings.themeMode;
+  }, [state.settings.themeMode]);
 
   const filteredSubjects = useMemo(() => {
     const normalizedQuery = normalizeSearch(query);
@@ -224,6 +241,22 @@ function App() {
                 Salir
               </button>
             )}
+            <div className="theme-control" aria-label="Tema">
+              {themeOptions.map((option) => {
+                const Icon = option.icon;
+                return (
+                  <button
+                    key={option.value}
+                    className={state.settings.themeMode === option.value ? 'active' : ''}
+                    onClick={() => updateThemeMode(option.value)}
+                    type="button"
+                  >
+                    <Icon size={16} />
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
             <button
               className="ghost-button danger-button"
               onClick={() => {
@@ -431,9 +464,10 @@ function SubjectCard({
             checked={Boolean(subject.convalidated)}
             onChange={(event) => onUpdate({ convalidated: event.target.checked })}
           />
+          <span className="toggle-visual" aria-hidden="true" />
         </label>
+        <div className="status-text">{statusLabel[subject.status]}</div>
       </div>
-      <div className="status-text">{statusLabel[subject.status]}</div>
     </article>
   );
 }

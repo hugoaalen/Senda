@@ -69,6 +69,7 @@ export function normalizeState(state: Partial<AppState> | null | undefined): App
         state?.settings?.subjectsPerSemester && state.settings.subjectsPerSemester > 0
           ? state.settings.subjectsPerSemester
           : initialState.settings.subjectsPerSemester,
+      themeMode: state?.settings?.themeMode ?? initialState.settings.themeMode,
     },
   };
 }
