@@ -17,6 +17,7 @@ export interface Subject {
   status: SubjectStatus;
   grade?: number;
   weeklyHours?: number;
+  evaluationMode?: string;
   difficulty: 1 | 2 | 3 | 4 | 5;
   priority: 1 | 2 | 3 | 4 | 5;
   notes?: string;
@@ -58,4 +59,14 @@ export interface ProgressStats {
   pendingSubjects: number;
   convalidatedSubjects: number;
   averageGrade: number | null;
+  byType: TypeProgressStats[];
+}
+
+export interface TypeProgressStats {
+  type: SubjectType;
+  totalSubjects: number;
+  passedSubjects: number;
+  totalCredits: number;
+  passedCredits: number;
+  percentage: number;
 }

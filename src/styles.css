@@ -267,7 +267,8 @@ h3 {
 
 .metric-grid,
 .scenario-summary,
-.remaining-grid {
+.remaining-grid,
+.type-progress-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
@@ -292,6 +293,58 @@ h3 {
   color: var(--muted);
   font-size: 0.84rem;
   font-weight: 800;
+}
+
+.type-progress-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
+.type-progress {
+  display: grid;
+  gap: 10px;
+  min-height: 116px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-strong);
+}
+
+.type-progress div:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.type-progress strong {
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.type-progress span,
+.type-progress p {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.type-progress p {
+  margin-top: 0;
+}
+
+.type-track {
+  overflow: hidden;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--track);
+}
+
+.type-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
 }
 
 .panel {
@@ -509,7 +562,9 @@ input {
 .subject-controls {
   display: grid;
   grid-template-columns: 170px 108px 108px 132px minmax(84px, 1fr);
-  grid-template-areas: "status hours grade convalidated badge";
+  grid-template-areas:
+    "status hours grade convalidated badge"
+    "evaluation evaluation evaluation evaluation evaluation";
   gap: 10px;
   align-items: end;
   justify-content: stretch;
@@ -536,6 +591,10 @@ input {
 
 .subject-controls > .toggle-field {
   grid-area: convalidated;
+}
+
+.subject-controls > .evaluation-field {
+  grid-area: evaluation;
 }
 
 .subject-controls label,
@@ -626,6 +685,53 @@ input {
   margin-top: 14px;
 }
 
+.scenario-picker-title {
+  margin-bottom: 16px;
+}
+
+.inline-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 850;
+}
+
+.inline-check input {
+  min-height: auto;
+  width: 18px;
+  aspect-ratio: 1;
+}
+
+.scenario-groups {
+  display: grid;
+  gap: 16px;
+}
+
+.scenario-group {
+  display: grid;
+  gap: 8px;
+}
+
+.scenario-group-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.scenario-group-title span {
+  min-width: 28px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  color: var(--muted);
+  padding: 4px 8px;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
 .picker {
   display: grid;
   gap: 4px;
@@ -644,6 +750,23 @@ input {
   background: var(--surface-muted);
 }
 
+.picker.passed {
+  background: var(--passed-bg);
+}
+
+.picker.active {
+  background: var(--active-bg);
+}
+
+.picker.convalidated {
+  border-color: color-mix(in srgb, var(--info-text) 34%, transparent);
+}
+
+.picker:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
 .picker span {
   font-weight: 850;
 }
@@ -651,6 +774,27 @@ input {
 .picker small {
   color: var(--muted);
   font-weight: 750;
+}
+
+.picker-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.picker-tags span {
+  border-radius: 999px;
+  background: var(--surface-muted);
+  color: var(--muted-strong);
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.picker.convalidated .picker-tags span:last-child {
+  background: var(--info-bg);
+  color: var(--info-text);
 }
 
 @media (max-width: 760px) {
@@ -676,7 +820,8 @@ input {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .remaining-grid {
+  .remaining-grid,
+  .type-progress-grid {
     grid-template-columns: 1fr;
   }
 
@@ -685,7 +830,8 @@ input {
     grid-template-areas:
       "status status"
       "hours grade"
-      "convalidated badge";
+      "convalidated badge"
+      "evaluation evaluation";
   }
 
   .subject-controls select {
@@ -707,5 +853,10 @@ input {
 
   .login-form {
     grid-template-columns: 1fr;
+  }
+
+  .scenario-picker-title {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

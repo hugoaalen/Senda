@@ -1,6 +1,7 @@
-import type { AppState, ProgressStats, Scenario } from '../types';
+import type { AppState, ProgressStats, Scenario, SubjectType } from '../types';
 
 export const TOTAL_DEGREE_CREDITS = 240;
+const trackedTypes: SubjectType[] = ['Básica', 'Obligatoria', 'Optativa'];
 
 export function getProgressStats(subjects: AppState['subjects'], subjectsPerSemester: number): ProgressStats {
   const passed = subjects.filter((subject) => subject.status === 'passed');
@@ -12,6 +13,21 @@ export function getProgressStats(subjects: AppState['subjects'], subjectsPerSeme
   const pendingCredits = Math.max(0, TOTAL_DEGREE_CREDITS - passedCredits);
   const remainingEquivalentSubjects = pendingCredits / 6;
   const remainingSemesters = remainingEquivalentSubjects / Math.max(1, subjectsPerSemester);
+  const byType = trackedTypes.map((type) => {
+    const typeSubjects = subjects.filter((subject) => subject.type === type);
+    const passedTypeSubjects = typeSubjects.filter((subject) => subject.status === 'passed');
+    const totalCredits = typeSubjects.reduce((sum, subject) => sum + subject.credits, 0);
+    const typePassedCredits = passedTypeSubjects.reduce((sum, subject) => sum + subject.credits, 0);
+
+    return {
+      type,
+      totalSubjects: typeSubjects.length,
+      passedSubjects: passedTypeSubjects.length,
+      totalCredits,
+      passedCredits: typePassedCredits,
+      percentage: totalCredits ? Math.round((typePassedCredits / totalCredits) * 100) : 0,
+    };
+  });
 
   return {
     totalCredits: TOTAL_DEGREE_CREDITS,
@@ -28,6 +44,7 @@ export function getProgressStats(subjects: AppState['subjects'], subjectsPerSeme
     averageGrade: graded.length
       ? Number((graded.reduce((sum, subject) => sum + (subject.grade ?? 0), 0) / graded.length).toFixed(2))
       : null,
+    byType,
   };
 }
 

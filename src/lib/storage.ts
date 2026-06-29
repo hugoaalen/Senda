@@ -55,6 +55,7 @@ function normalizeSubjects(subjects: Subject[] | undefined): Subject[] {
     return {
       ...subject,
       convalidated: subject.convalidated ?? defaultSubject?.convalidated ?? false,
+      evaluationMode: subject.evaluationMode ?? defaultSubject?.evaluationMode ?? '',
     };
   });
 }

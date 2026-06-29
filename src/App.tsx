@@ -2,7 +2,7 @@ import { BookOpenCheck, CalendarDays, Check, Circle, Gauge, GraduationCap, ListF
 import { useEffect, useMemo, useState } from 'react';
 import { useSendaState } from './hooks/useSendaState';
 import { getScenarioLoad } from './lib/stats';
-import type { Subject, SubjectStatus, SubjectType, ThemeMode } from './types';
+import type { Subject, SubjectStatus, SubjectType, ThemeMode, TypeProgressStats } from './types';
 
 type Tab = 'dashboard' | 'subjects' | 'scenarios';
 type Filter = 'all' | SubjectStatus;
@@ -35,6 +35,7 @@ const themeOptions: Array<{ icon: typeof Monitor; label: string; value: ThemeMod
   { icon: Sun, label: 'Claro', value: 'light' },
   { icon: Moon, label: 'Oscuro', value: 'dark' },
 ];
+const scenarioTypes: SubjectType[] = ['Básica', 'Obligatoria', 'Optativa', 'Sin asignar'];
 
 function App() {
   const {
@@ -62,6 +63,7 @@ function App() {
   const [filter, setFilter] = useState<Filter>('all');
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [convalidatedFilter, setConvalidatedFilter] = useState<ConvalidatedFilter>('all');
+  const [hidePassedInScenario, setHidePassedInScenario] = useState(false);
   const [query, setQuery] = useState('');
 
   const scenarioLoad = selectedScenario ? getScenarioLoad(state, selectedScenario) : null;
@@ -88,7 +90,7 @@ function App() {
         (convalidatedFilter === 'convalidated' && subject.convalidated) ||
         (convalidatedFilter === 'not-convalidated' && !subject.convalidated);
       const haystack = normalizeSearch(
-        `${subject.name} ${subject.type} ${subject.itinerary ?? ''} ${subject.area ?? ''}`,
+        `${subject.name} ${subject.type} ${subject.itinerary ?? ''} ${subject.area ?? ''} ${subject.evaluationMode ?? ''}`,
       );
       return matchesFilter && matchesType && matchesConvalidated && haystack.includes(normalizedQuery);
     });
@@ -97,6 +99,18 @@ function App() {
   const convalidatedSubjects = useMemo(
     () => state.subjects.filter((subject) => subject.convalidated),
     [state.subjects],
+  );
+  const scenarioSubjectGroups = useMemo(
+    () =>
+      scenarioTypes
+        .map((type) => ({
+          type,
+          subjects: state.subjects.filter(
+            (subject) => subject.type === type && (!hidePassedInScenario || subject.status !== 'passed'),
+          ),
+        }))
+        .filter((group) => group.subjects.length),
+    [hidePassedInScenario, state.subjects],
   );
 
   return (
@@ -148,6 +162,20 @@ function App() {
           <section className="panel">
             <div className="section-title">
               <div>
+                <p className="eyebrow">Por tipo</p>
+                <h2>Avance de créditos</h2>
+              </div>
+            </div>
+            <div className="type-progress-grid">
+              {stats.byType.map((item) => (
+                <TypeProgress key={item.type} item={item} />
+              ))}
+            </div>
+          </section>
+
+          <section className="panel">
+            <div className="section-title">
+              <div>
                 <p className="eyebrow">Informativo</p>
                 <h2>Asignaturas convalidadas</h2>
               </div>
@@ -167,12 +195,12 @@ function App() {
               </div>
               <label className="pace-control">
                 <span>Asignaturas/semestre</span>
-                <input
-                  type="number"
+                <EditableNumberInput
                   min="1"
                   max="10"
                   value={state.settings.subjectsPerSemester}
-                  onChange={(event) => updateSubjectsPerSemester(Number(event.target.value))}
+                  onChange={(value) => updateSubjectsPerSemester(value ?? state.settings.subjectsPerSemester)}
+                  required
                 />
               </label>
             </div>
@@ -349,13 +377,13 @@ function App() {
             </label>
             <label className="field">
               <span>Capacidad semanal</span>
-              <input
-                type="number"
+              <EditableNumberInput
                 min="1"
                 value={selectedScenario.weeklyCapacity}
-                onChange={(event) =>
-                  updateScenario(selectedScenario.id, { weeklyCapacity: Number(event.target.value) })
+                onChange={(value) =>
+                  updateScenario(selectedScenario.id, { weeklyCapacity: value ?? selectedScenario.weeklyCapacity })
                 }
+                required
               />
             </label>
 
@@ -367,25 +395,54 @@ function App() {
           </section>
 
           <section className="panel">
-            <div className="section-title">
+            <div className="section-title scenario-picker-title">
               <h2>Elegir asignaturas</h2>
+              <label className="inline-check">
+                <input
+                  type="checkbox"
+                  checked={hidePassedInScenario}
+                  onChange={(event) => setHidePassedInScenario(event.target.checked)}
+                />
+                <span>Ocultar superadas</span>
+              </label>
             </div>
-            <div className="picker-list">
-              {state.subjects
-                .filter((subject) => subject.status !== 'passed')
-                .map((subject) => {
-                  const checked = selectedScenario.items.some((item) => item.subjectId === subject.id);
-                  return (
-                    <button
-                      key={subject.id}
-                      className={checked ? 'picker selected' : 'picker'}
-                      onClick={() => toggleSubjectInScenario(selectedScenario.id, subject.id)}
-                    >
-                      <span>{subject.name}</span>
-                      <small>{subject.credits} cr · {subject.weeklyHours} h/sem</small>
-                    </button>
-                  );
-                })}
+            <div className="scenario-groups">
+              {scenarioSubjectGroups.map((group) => (
+                <section className="scenario-group" key={group.type}>
+                  <div className="scenario-group-title">
+                    <p className="eyebrow">{group.type}</p>
+                    <span>{group.subjects.length}</span>
+                  </div>
+                  <div className="picker-list">
+                    {group.subjects.map((subject) => {
+                      const checked = selectedScenario.items.some((item) => item.subjectId === subject.id);
+                      return (
+                        <button
+                          key={subject.id}
+                          className={[
+                            'picker',
+                            checked ? 'selected' : '',
+                            subject.status,
+                            subject.convalidated ? 'convalidated' : '',
+                          ].filter(Boolean).join(' ')}
+                          disabled={subject.status === 'passed' && !checked}
+                          onClick={() => toggleSubjectInScenario(selectedScenario.id, subject.id)}
+                        >
+                          <span>{subject.name}</span>
+                          <small>
+                            {subject.credits} cr · {subject.weeklyHours ?? 0} h/sem
+                            {subject.evaluationMode ? ` · ${subject.evaluationMode}` : ''}
+                          </small>
+                          <span className="picker-tags">
+                            <span>{statusLabel[subject.status]}</span>
+                            {subject.convalidated && <span>Convalidada</span>}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              ))}
             </div>
           </section>
         </section>
@@ -400,6 +457,81 @@ function Metric({ label, value }: { label: string; value: number | string }) {
       <strong>{value}</strong>
       <span>{label}</span>
     </div>
+  );
+}
+
+function TypeProgress({ item }: { item: TypeProgressStats }) {
+  return (
+    <article className="type-progress">
+      <div>
+        <strong>{item.percentage}%</strong>
+        <span>{item.type}</span>
+      </div>
+      <div className="type-track">
+        <span style={{ width: `${item.percentage}%` }} />
+      </div>
+      <p>
+        {item.passedSubjects}/{item.totalSubjects} asignaturas · {item.passedCredits}/{item.totalCredits} créditos
+      </p>
+    </article>
+  );
+}
+
+function EditableNumberInput({
+  value,
+  onChange,
+  min,
+  max,
+  step,
+  required = false,
+}: {
+  value: number | undefined;
+  onChange: (value: number | undefined) => void;
+  min?: string;
+  max?: string;
+  step?: string;
+  required?: boolean;
+}) {
+  const [draft, setDraft] = useState(value?.toString() ?? '');
+  const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    if (!focused) {
+      setDraft(value?.toString() ?? '');
+    }
+  }, [focused, value]);
+
+  return (
+    <input
+      type="number"
+      min={min}
+      max={max}
+      step={step}
+      value={draft}
+      onFocus={() => setFocused(true)}
+      onBlur={() => {
+        setFocused(false);
+        if (draft === '' && required) {
+          setDraft(value?.toString() ?? min ?? '0');
+        }
+      }}
+      onChange={(event) => {
+        const nextDraft = event.target.value;
+        setDraft(nextDraft);
+
+        if (nextDraft === '') {
+          if (!required) {
+            onChange(undefined);
+          }
+          return;
+        }
+
+        const nextValue = Number(nextDraft);
+        if (!Number.isNaN(nextValue)) {
+          onChange(nextValue);
+        }
+      }}
+    />
   );
 }
 
@@ -437,24 +569,20 @@ function SubjectCard({
         </select>
         <label>
           <span>Horas</span>
-          <input
-            type="number"
+          <EditableNumberInput
             min="0"
-            value={subject.weeklyHours ?? 0}
-            onChange={(event) => onUpdate({ weeklyHours: Number(event.target.value) })}
+            value={subject.weeklyHours}
+            onChange={(value) => onUpdate({ weeklyHours: value })}
           />
         </label>
         <label>
           <span>Nota</span>
-          <input
-            type="number"
+          <EditableNumberInput
             min="0"
             max="10"
             step="0.1"
-            value={subject.grade ?? ''}
-            onChange={(event) =>
-              onUpdate({ grade: event.target.value === '' ? undefined : Number(event.target.value) })
-            }
+            value={subject.grade}
+            onChange={(value) => onUpdate({ grade: value })}
           />
         </label>
         <label className="toggle-field">
@@ -467,6 +595,14 @@ function SubjectCard({
           <span className="toggle-visual" aria-hidden="true" />
         </label>
         <div className="status-text">{statusLabel[subject.status]}</div>
+        <label className="evaluation-field">
+          <span>Evaluación</span>
+          <input
+            value={subject.evaluationMode ?? ''}
+            onChange={(event) => onUpdate({ evaluationMode: event.target.value })}
+            placeholder="Examen, prácticas, trabajos..."
+          />
+        </label>
       </div>
     </article>
   );
