@@ -10,6 +10,11 @@ export function getProgressStats(subjects: AppState['subjects'], subjectsPerSeme
   const convalidated = subjects.filter((subject) => subject.convalidated);
   const graded = passed.filter((subject) => typeof subject.grade === 'number');
   const passedCredits = passed.reduce((sum, subject) => sum + subject.credits, 0);
+  const convalidatedCredits = convalidated.reduce((sum, subject) => sum + subject.credits, 0);
+  const convalidatedPassedCredits = convalidated
+    .filter((subject) => subject.status === 'passed')
+    .reduce((sum, subject) => sum + subject.credits, 0);
+  const convalidatedPendingCredits = Math.max(0, convalidatedCredits - convalidatedPassedCredits);
   const pendingCredits = Math.max(0, TOTAL_DEGREE_CREDITS - passedCredits);
   const remainingEquivalentSubjects = pendingCredits / 6;
   const remainingSemesters = remainingEquivalentSubjects / Math.max(1, subjectsPerSemester);
@@ -34,6 +39,12 @@ export function getProgressStats(subjects: AppState['subjects'], subjectsPerSeme
     passedCredits,
     activeCredits: active.reduce((sum, subject) => sum + subject.credits, 0),
     pendingCredits,
+    convalidatedCredits,
+    convalidatedPassedCredits,
+    convalidatedPendingCredits,
+    convalidatedProgress: convalidatedCredits
+      ? Math.round((convalidatedPassedCredits / convalidatedCredits) * 100)
+      : 0,
     remainingEquivalentSubjects,
     remainingSemesters,
     remainingYearsAtTwoSemesters: remainingSemesters / 2,

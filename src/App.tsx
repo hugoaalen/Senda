@@ -190,6 +190,28 @@ function App() {
           <section className="panel">
             <div className="section-title">
               <div>
+                <p className="eyebrow">Convalidadas</p>
+                <h2>Créditos ya cursados</h2>
+              </div>
+            </div>
+            <div className="convalidated-progress">
+              <div>
+                <strong>{stats.convalidatedPassedCredits}</strong>
+                <span>de {stats.convalidatedCredits} créditos</span>
+              </div>
+              <div className="load-track">
+                <span style={{ width: `${stats.convalidatedProgress}%` }} />
+              </div>
+              <p>
+                {stats.convalidatedProgress}% completado · {stats.convalidatedPendingCredits} créditos convalidados
+                pendientes de cursar
+              </p>
+            </div>
+          </section>
+
+          <section className="panel">
+            <div className="section-title">
+              <div>
                 <p className="eyebrow">Para acabar</p>
                 <h2>Lo que queda de carrera</h2>
               </div>

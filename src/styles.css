@@ -451,6 +451,34 @@ h3 {
   background: var(--danger);
 }
 
+.convalidated-progress {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.convalidated-progress div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.convalidated-progress strong {
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.convalidated-progress span,
+.convalidated-progress p {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.convalidated-progress p {
+  margin-top: 0;
+}
+
 .planned-list {
   display: flex;
   flex-wrap: wrap;
