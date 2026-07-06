@@ -19,6 +19,10 @@
   --danger-text: #8b3322;
   --passed-bg: #eef6e8;
   --active-bg: #fff3d5;
+  --selected-bg: #dfead8;
+  --selected-border: #bfd1b8;
+  --selected-text: #132018;
+  --selected-muted: #516055;
   --track: #e1dfd3;
   --info-bg: #e4eef7;
   --info-text: #1d4f7a;
@@ -52,6 +56,10 @@
     --danger-text: #ffc0ad;
     --passed-bg: #1f321f;
     --active-bg: #3a3017;
+    --selected-bg: #27402d;
+    --selected-border: #4f7758;
+    --selected-text: #f4faf1;
+    --selected-muted: #bfd1be;
     --track: #2b3329;
     --info-bg: #1b2d3f;
     --info-text: #9dccf3;
@@ -79,6 +87,10 @@
   --danger-text: #ffc0ad;
   --passed-bg: #1f321f;
   --active-bg: #3a3017;
+  --selected-bg: #27402d;
+  --selected-border: #4f7758;
+  --selected-text: #f4faf1;
+  --selected-muted: #bfd1be;
   --track: #2b3329;
   --info-bg: #1b2d3f;
   --info-text: #9dccf3;
@@ -214,6 +226,19 @@ h3 {
 .tabs button.active {
   background: var(--text);
   color: var(--accent-contrast);
+}
+
+.tabs button:focus-visible,
+.ghost-button:focus-visible,
+.theme-control button:focus-visible,
+.picker:focus-visible,
+.subject-controls input:focus-visible,
+.subject-controls select:focus-visible,
+.search-box input:focus-visible,
+.pace-control input:focus-visible,
+.field input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .danger-button {
@@ -530,6 +555,10 @@ input {
   padding: 0 10px;
 }
 
+::placeholder {
+  color: color-mix(in srgb, var(--muted) 74%, transparent);
+}
+
 .subject-list,
 .picker-list {
   display: grid;
@@ -774,8 +803,10 @@ input {
 }
 
 .picker.selected {
-  border-color: var(--accent);
-  background: var(--surface-muted);
+  border-color: var(--selected-border);
+  background: var(--selected-bg);
+  color: var(--selected-text);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
 .picker.passed {
@@ -793,6 +824,11 @@ input {
 .picker:disabled {
   cursor: not-allowed;
   opacity: 0.72;
+}
+
+.picker.selected span,
+.picker.selected small {
+  color: var(--selected-text);
 }
 
 .picker span {
@@ -820,9 +856,28 @@ input {
   font-weight: 850;
 }
 
+.picker.selected .picker-tags span {
+  background: color-mix(in srgb, var(--selected-text) 12%, transparent);
+  color: var(--selected-text);
+}
+
 .picker.convalidated .picker-tags span:last-child {
   background: var(--info-bg);
   color: var(--info-text);
+}
+
+.picker.selected.convalidated {
+  border-color: color-mix(in srgb, var(--info-text) 40%, var(--selected-border));
+}
+
+.picker.selected.convalidated .picker-tags span:last-child {
+  background: color-mix(in srgb, var(--info-text) 20%, var(--selected-text));
+  color: var(--selected-text);
+}
+
+.picker.selected:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 @media (max-width: 760px) {
