@@ -53,8 +53,10 @@ export interface ProgressStats {
   pendingCredits: number;
   convalidatedCredits: number;
   convalidatedPassedCredits: number;
+  convalidatedActiveCredits: number;
   convalidatedPendingCredits: number;
   convalidatedProgress: number;
+  convalidatedActiveProgress: number;
   remainingEquivalentSubjects: number;
   remainingSemesters: number;
   remainingYearsAtTwoSemesters: number;
@@ -70,7 +72,10 @@ export interface TypeProgressStats {
   type: SubjectType;
   totalSubjects: number;
   passedSubjects: number;
+  activeSubjects: number;
   totalCredits: number;
   passedCredits: number;
+  activeCredits: number;
   percentage: number;
+  activePercentage: number;
 }

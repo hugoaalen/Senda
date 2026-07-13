@@ -68,6 +68,8 @@ function App() {
 
   const scenarioLoad = selectedScenario ? getScenarioLoad(state, selectedScenario) : null;
   const progressPercent = Math.round((stats.passedCredits / stats.totalCredits) * 100);
+  const activeProgressPercent = Math.round((stats.activeCredits / stats.totalCredits) * 100);
+  const totalProgressPercent = Math.min(100, progressPercent + activeProgressPercent);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -145,8 +147,17 @@ function App() {
               <p className="eyebrow">Créditos superados</p>
               <div className="progress-number">{stats.passedCredits}</div>
               <p>de {stats.totalCredits} créditos</p>
+              <p className="active-credit-note">{stats.activeCredits} créditos cursando</p>
             </div>
-            <div className="radial" style={{ '--progress': `${progressPercent}%` } as React.CSSProperties}>
+            <div
+              className="radial"
+              style={
+                {
+                  '--progress': `${progressPercent}%`,
+                  '--active-progress': `${totalProgressPercent}%`,
+                } as React.CSSProperties
+              }
+            >
               <span>{progressPercent}%</span>
             </div>
           </section>
@@ -191,7 +202,7 @@ function App() {
             <div className="section-title">
               <div>
                 <p className="eyebrow">Convalidadas</p>
-                <h2>Créditos ya cursados</h2>
+                <h2>Créditos superados</h2>
               </div>
             </div>
             <div className="convalidated-progress">
@@ -199,12 +210,13 @@ function App() {
                 <strong>{stats.convalidatedPassedCredits}</strong>
                 <span>de {stats.convalidatedCredits} créditos</span>
               </div>
-              <div className="load-track">
-                <span style={{ width: `${stats.convalidatedProgress}%` }} />
-              </div>
+              <StackedProgress
+                passedPercent={stats.convalidatedProgress}
+                activePercent={stats.convalidatedActiveProgress}
+              />
               <p>
-                {stats.convalidatedProgress}% completado · {stats.convalidatedPendingCredits} créditos convalidados
-                pendientes de cursar
+                {stats.convalidatedProgress}% superado · {stats.convalidatedActiveCredits} créditos cursando ·{' '}
+                {stats.convalidatedPendingCredits} créditos pendientes
               </p>
             </div>
           </section>
@@ -489,13 +501,30 @@ function TypeProgress({ item }: { item: TypeProgressStats }) {
         <strong>{item.percentage}%</strong>
         <span>{item.type}</span>
       </div>
-      <div className="type-track">
-        <span style={{ width: `${item.percentage}%` }} />
-      </div>
+      <StackedProgress passedPercent={item.percentage} activePercent={item.activePercentage} />
       <p>
-        {item.passedSubjects}/{item.totalSubjects} asignaturas · {item.passedCredits}/{item.totalCredits} créditos
+        {item.passedSubjects}/{item.totalSubjects} asignaturas · {item.passedCredits}/{item.totalCredits} créditos ·{' '}
+        {item.activeCredits} cursando
       </p>
     </article>
+  );
+}
+
+function StackedProgress({
+  passedPercent,
+  activePercent,
+}: {
+  passedPercent: number;
+  activePercent: number;
+}) {
+  const passed = Math.max(0, Math.min(100, passedPercent));
+  const active = Math.max(0, Math.min(100 - passed, activePercent));
+
+  return (
+    <div className="stacked-track">
+      <span className="passed-segment" style={{ width: `${passed}%` }} />
+      <span className="active-segment" style={{ left: `${passed}%`, width: `${active}%` }} />
+    </div>
   );
 }
 

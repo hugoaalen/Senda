@@ -14,23 +14,34 @@ export function getProgressStats(subjects: AppState['subjects'], subjectsPerSeme
   const convalidatedPassedCredits = convalidated
     .filter((subject) => subject.status === 'passed')
     .reduce((sum, subject) => sum + subject.credits, 0);
-  const convalidatedPendingCredits = Math.max(0, convalidatedCredits - convalidatedPassedCredits);
+  const convalidatedActiveCredits = convalidated
+    .filter((subject) => subject.status === 'active')
+    .reduce((sum, subject) => sum + subject.credits, 0);
+  const convalidatedPendingCredits = Math.max(
+    0,
+    convalidatedCredits - convalidatedPassedCredits - convalidatedActiveCredits,
+  );
   const pendingCredits = Math.max(0, TOTAL_DEGREE_CREDITS - passedCredits);
   const remainingEquivalentSubjects = pendingCredits / 6;
   const remainingSemesters = remainingEquivalentSubjects / Math.max(1, subjectsPerSemester);
   const byType = trackedTypes.map((type) => {
     const typeSubjects = subjects.filter((subject) => subject.type === type);
     const passedTypeSubjects = typeSubjects.filter((subject) => subject.status === 'passed');
+    const activeTypeSubjects = typeSubjects.filter((subject) => subject.status === 'active');
     const totalCredits = typeSubjects.reduce((sum, subject) => sum + subject.credits, 0);
     const typePassedCredits = passedTypeSubjects.reduce((sum, subject) => sum + subject.credits, 0);
+    const typeActiveCredits = activeTypeSubjects.reduce((sum, subject) => sum + subject.credits, 0);
 
     return {
       type,
       totalSubjects: typeSubjects.length,
       passedSubjects: passedTypeSubjects.length,
+      activeSubjects: activeTypeSubjects.length,
       totalCredits,
       passedCredits: typePassedCredits,
+      activeCredits: typeActiveCredits,
       percentage: totalCredits ? Math.round((typePassedCredits / totalCredits) * 100) : 0,
+      activePercentage: totalCredits ? Math.round((typeActiveCredits / totalCredits) * 100) : 0,
     };
   });
 
@@ -41,9 +52,13 @@ export function getProgressStats(subjects: AppState['subjects'], subjectsPerSeme
     pendingCredits,
     convalidatedCredits,
     convalidatedPassedCredits,
+    convalidatedActiveCredits,
     convalidatedPendingCredits,
     convalidatedProgress: convalidatedCredits
       ? Math.round((convalidatedPassedCredits / convalidatedCredits) * 100)
+      : 0,
+    convalidatedActiveProgress: convalidatedCredits
+      ? Math.round((convalidatedActiveCredits / convalidatedCredits) * 100)
       : 0,
     remainingEquivalentSubjects,
     remainingSemesters,

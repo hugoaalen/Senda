@@ -14,6 +14,7 @@
   --shadow: 0 12px 30px rgba(21, 33, 26, 0.07);
   --accent: #1d6f4c;
   --accent-contrast: #f8f3ea;
+  --active-accent: #d98124;
   --danger: #b44b32;
   --danger-soft: #ffe9df;
   --danger-text: #8b3322;
@@ -51,6 +52,7 @@
     --shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
     --accent: #66c18f;
     --accent-contrast: #10140f;
+    --active-accent: #f0a340;
     --danger: #f08a70;
     --danger-soft: #3a201b;
     --danger-text: #ffc0ad;
@@ -82,6 +84,7 @@
   --shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
   --accent: #66c18f;
   --accent-contrast: #10140f;
+  --active-accent: #f0a340;
   --danger: #f08a70;
   --danger-soft: #3a201b;
   --danger-text: #ffc0ad;
@@ -266,6 +269,11 @@ h3 {
   font-weight: 700;
 }
 
+.active-credit-note {
+  margin-top: 8px;
+  color: var(--active-accent);
+}
+
 .progress-number {
   margin: 6px 0;
   font-size: clamp(3.6rem, 12vw, 7rem);
@@ -275,6 +283,7 @@ h3 {
 
 .radial {
   --progress: 0%;
+  --active-progress: var(--progress);
   display: grid;
   place-items: center;
   width: clamp(104px, 24vw, 152px);
@@ -282,7 +291,11 @@ h3 {
   border-radius: 50%;
   background:
     radial-gradient(circle at center, var(--hero-bg) 0 56%, transparent 57%),
-    conic-gradient(var(--accent) var(--progress), var(--border) 0);
+    conic-gradient(
+      var(--accent) var(--progress),
+      var(--active-accent) var(--progress) var(--active-progress),
+      var(--border) 0
+    );
 }
 
 .radial span {
@@ -358,18 +371,32 @@ h3 {
   margin-top: 0;
 }
 
-.type-track {
+.type-track,
+.stacked-track {
+  position: relative;
   overflow: hidden;
   height: 10px;
   border-radius: 999px;
   background: var(--track);
 }
 
-.type-track span {
+.type-track span,
+.stacked-track span {
+  position: absolute;
+  top: 0;
+  left: 0;
   display: block;
   height: 100%;
   border-radius: inherit;
+}
+
+.type-track span,
+.passed-segment {
   background: var(--accent);
+}
+
+.active-segment {
+  background: var(--active-accent);
 }
 
 .panel {
