@@ -205,7 +205,7 @@ h3 {
   top: 0;
   z-index: 5;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   padding: 8px 0 18px;
   background: color-mix(in srgb, var(--app-bg) 92%, transparent);
@@ -233,6 +233,7 @@ h3 {
 
 .tabs button:focus-visible,
 .ghost-button:focus-visible,
+.icon-button:focus-visible,
 .theme-control button:focus-visible,
 .picker:focus-visible,
 .subject-controls input:focus-visible,
@@ -247,6 +248,24 @@ h3 {
 .danger-button {
   border-color: color-mix(in srgb, var(--danger) 30%, transparent);
   color: var(--danger-text);
+}
+
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-soft);
+}
+
+.active-action {
+  border-color: var(--selected-border);
+  background: var(--selected-bg);
+  color: var(--selected-text);
 }
 
 .stack {
@@ -793,6 +812,126 @@ input {
   gap: 16px;
 }
 
+.enrollment-heading,
+.enrollment-toolbar,
+.enrollment-actions,
+.enrollment-subject,
+.enrollment-subject-tags {
+  display: flex;
+  align-items: center;
+}
+
+.enrollment-heading,
+.enrollment-toolbar,
+.enrollment-subject {
+  justify-content: space-between;
+}
+
+.enrollment-heading {
+  gap: 18px;
+}
+
+.enrollment-heading > div > p:last-child,
+.empty-state p {
+  margin-top: 6px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 38px 20px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.enrollment-card {
+  display: grid;
+  gap: 16px;
+}
+
+.enrollment-toolbar {
+  align-items: end;
+  gap: 14px;
+}
+
+.enrollment-period {
+  width: min(420px, 100%);
+  margin-top: 0;
+}
+
+.enrollment-actions,
+.enrollment-subject-tags {
+  gap: 8px;
+}
+
+.enrollment-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.enrollment-subjects,
+.enrollment-picker {
+  display: grid;
+  gap: 8px;
+}
+
+.enrollment-subject {
+  gap: 12px;
+  min-height: 58px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-strong);
+}
+
+.enrollment-subject.passed {
+  background: var(--passed-bg);
+}
+
+.enrollment-subject.active {
+  background: var(--active-bg);
+}
+
+.enrollment-subject strong,
+.enrollment-subject small {
+  display: block;
+}
+
+.enrollment-subject small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.enrollment-subject-tags {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.enrollment-subject-tags span {
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: var(--surface-muted);
+  color: var(--muted-strong);
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.enrollment-subject-tags .info-tag {
+  background: var(--info-bg);
+  color: var(--info-text);
+}
+
+.enrollment-picker {
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
 .scenario-group {
   display: grid;
   gap: 8px;
@@ -920,6 +1059,15 @@ input {
     font-size: 0.82rem;
   }
 
+  .tabs button {
+    gap: 5px;
+    padding-inline: 6px;
+  }
+
+  .tabs button svg {
+    width: 16px;
+  }
+
   .hero-panel,
   .subject-card,
   .toolbar {
@@ -961,6 +1109,26 @@ input {
     grid-template-columns: 1fr;
   }
 
+  .enrollment-heading,
+  .enrollment-toolbar,
+  .enrollment-subject {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .enrollment-heading .ghost-button,
+  .enrollment-actions .ghost-button {
+    flex: 1;
+  }
+
+  .enrollment-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .enrollment-subject-tags {
+    justify-content: flex-start;
+  }
+
   .login-form {
     grid-template-columns: 1fr;
   }
@@ -968,5 +1136,11 @@ input {
   .scenario-picker-title {
     align-items: flex-start;
     flex-direction: column;
+  }
+}
+
+@media (max-width: 520px) {
+  .tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

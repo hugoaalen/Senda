@@ -36,9 +36,16 @@ export interface Scenario {
   items: ScenarioItem[];
 }
 
+export interface Enrollment {
+  id: string;
+  period: string;
+  subjectIds: string[];
+}
+
 export interface AppState {
   subjects: Subject[];
   scenarios: Scenario[];
+  enrollments: Enrollment[];
   selectedScenarioId: string;
   settings: {
     subjectsPerSemester: number;

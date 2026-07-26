@@ -1,10 +1,10 @@
-import { BookOpenCheck, CalendarDays, Check, Circle, Gauge, GraduationCap, ListFilter, Monitor, Moon, Sun, WifiOff } from 'lucide-react';
+import { BookMarked, BookOpenCheck, CalendarDays, Check, Circle, Gauge, GraduationCap, ListFilter, Monitor, Moon, Plus, Sun, Trash2, WifiOff } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useSendaState } from './hooks/useSendaState';
 import { getScenarioLoad } from './lib/stats';
 import type { Subject, SubjectStatus, SubjectType, ThemeMode, TypeProgressStats } from './types';
 
-type Tab = 'dashboard' | 'subjects' | 'scenarios';
+type Tab = 'dashboard' | 'subjects' | 'scenarios' | 'enrollments';
 type Filter = 'all' | SubjectStatus;
 type TypeFilter = 'all' | SubjectType;
 type ConvalidatedFilter = 'all' | 'convalidated' | 'not-convalidated';
@@ -53,6 +53,10 @@ function App() {
     updateScenario,
     toggleSubjectInScenario,
     selectScenario,
+    createEnrollment,
+    updateEnrollment,
+    deleteEnrollment,
+    toggleSubjectInEnrollment,
     updateSubjectsPerSemester,
     updateThemeMode,
     resetToBaseState,
@@ -64,6 +68,7 @@ function App() {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [convalidatedFilter, setConvalidatedFilter] = useState<ConvalidatedFilter>('all');
   const [hidePassedInScenario, setHidePassedInScenario] = useState(false);
+  const [editingEnrollmentId, setEditingEnrollmentId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
 
   const scenarioLoad = selectedScenario ? getScenarioLoad(state, selectedScenario) : null;
@@ -137,6 +142,9 @@ function App() {
         </button>
         <button className={tab === 'scenarios' ? 'active' : ''} onClick={() => setTab('scenarios')}>
           <CalendarDays size={18} /> Escenarios
+        </button>
+        <button className={tab === 'enrollments' ? 'active' : ''} onClick={() => setTab('enrollments')}>
+          <BookMarked size={18} /> Matrículas
         </button>
       </nav>
 
@@ -479,6 +487,153 @@ function App() {
               ))}
             </div>
           </section>
+        </section>
+      )}
+
+      {tab === 'enrollments' && (
+        <section className="stack">
+          <section className="panel enrollment-heading">
+            <div>
+              <p className="eyebrow">Histórico académico</p>
+              <h2>Matrículas por semestre</h2>
+              <p>Guarda qué asignaturas matriculaste en cada periodo.</p>
+            </div>
+            <button
+              className="ghost-button"
+              onClick={() => {
+                const enrollmentId = createEnrollment();
+                setEditingEnrollmentId(enrollmentId);
+              }}
+            >
+              <Plus size={18} /> Nueva matrícula
+            </button>
+          </section>
+
+          {state.enrollments.length === 0 && (
+            <section className="panel empty-state">
+              <BookMarked size={28} />
+              <h2>Sin matrículas guardadas</h2>
+              <p>Añade primer semestre para empezar histórico.</p>
+            </section>
+          )}
+
+          {state.enrollments.map((enrollment) => {
+            const enrolledSubjects = enrollment.subjectIds
+              .map((subjectId) => state.subjects.find((subject) => subject.id === subjectId))
+              .filter((subject): subject is Subject => Boolean(subject));
+            const credits = enrolledSubjects.reduce((total, subject) => total + subject.credits, 0);
+            const passed = enrolledSubjects.filter((subject) => subject.status === 'passed');
+            const graded = enrolledSubjects.filter(
+              (subject) => subject.status === 'passed' && subject.grade !== undefined,
+            );
+            const average =
+              graded.length > 0
+                ? formatDecimal(graded.reduce((total, subject) => total + (subject.grade ?? 0), 0) / graded.length)
+                : '-';
+            const editing = editingEnrollmentId === enrollment.id;
+
+            return (
+              <section className="panel enrollment-card" key={enrollment.id}>
+                <div className="enrollment-toolbar">
+                  <label className="field enrollment-period">
+                    <span>Periodo</span>
+                    <input
+                      value={enrollment.period}
+                      onChange={(event) => updateEnrollment(enrollment.id, { period: event.target.value })}
+                      placeholder="Ej. 2025-2026 · 1.º semestre"
+                    />
+                  </label>
+                  <div className="enrollment-actions">
+                    <button
+                      className={`ghost-button ${editing ? 'active-action' : ''}`}
+                      onClick={() => setEditingEnrollmentId(editing ? null : enrollment.id)}
+                    >
+                      <GraduationCap size={18} />
+                      {editing ? 'Cerrar selección' : 'Elegir asignaturas'}
+                    </button>
+                    <button
+                      className="icon-button danger-button"
+                      title="Eliminar matrícula"
+                      aria-label={`Eliminar matrícula ${enrollment.period}`}
+                      onClick={() => {
+                        if (window.confirm(`¿Eliminar la matrícula "${enrollment.period}"?`)) {
+                          deleteEnrollment(enrollment.id);
+                          if (editing) setEditingEnrollmentId(null);
+                        }
+                      }}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="enrollment-summary">
+                  <Metric label="Asignaturas" value={enrolledSubjects.length} />
+                  <Metric label="Créditos" value={credits} />
+                  <Metric label="Superadas" value={`${passed.length}/${enrolledSubjects.length}`} />
+                  <Metric label="Media" value={average} />
+                </div>
+
+                {enrolledSubjects.length > 0 && (
+                  <div className="enrollment-subjects">
+                    {enrolledSubjects.map((subject) => (
+                      <article className={`enrollment-subject ${subject.status}`} key={subject.id}>
+                        <div>
+                          <strong>{subject.name}</strong>
+                          <small>{subject.type} · {subject.credits} créditos</small>
+                        </div>
+                        <div className="enrollment-subject-tags">
+                          <span>{statusLabel[subject.status]}</span>
+                          {subject.grade !== undefined && <span>Nota {formatDecimal(subject.grade)}</span>}
+                          {subject.convalidated && <span className="info-tag">Convalidada</span>}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+
+                {editing && (
+                  <div className="enrollment-picker">
+                    {scenarioTypes.map((type) => {
+                      const subjects = state.subjects.filter((subject) => subject.type === type);
+                      if (!subjects.length) return null;
+                      return (
+                        <section className="scenario-group" key={type}>
+                          <div className="scenario-group-title">
+                            <p className="eyebrow">{type}</p>
+                            <span>{subjects.length}</span>
+                          </div>
+                          <div className="picker-list">
+                            {subjects.map((subject) => {
+                              const checked = enrollment.subjectIds.includes(subject.id);
+                              return (
+                                <button
+                                  key={subject.id}
+                                  className={[
+                                    'picker',
+                                    checked ? 'selected' : '',
+                                    subject.status,
+                                    subject.convalidated ? 'convalidated' : '',
+                                  ].filter(Boolean).join(' ')}
+                                  onClick={() => toggleSubjectInEnrollment(enrollment.id, subject.id)}
+                                >
+                                  <span>{subject.name}</span>
+                                  <small>{subject.credits} créditos · {statusLabel[subject.status]}</small>
+                                  {subject.convalidated && (
+                                    <span className="picker-tags"><span>Convalidada</span></span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </section>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            );
+          })}
         </section>
       )}
     </main>

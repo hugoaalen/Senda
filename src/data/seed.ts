@@ -107,6 +107,7 @@ export const initialSubjects: Subject[] = rawInitialSubjects;
 
 export const initialState: AppState = {
   subjects: initialSubjects,
+  enrollments: [],
   selectedScenarioId: 'realista-2026-1',
   settings: {
     subjectsPerSemester: 3,

@@ -64,6 +64,7 @@ export function normalizeState(state: Partial<AppState> | null | undefined): App
   return {
     subjects: normalizeSubjects(state?.subjects),
     scenarios: state?.scenarios?.length ? state.scenarios : initialState.scenarios,
+    enrollments: state?.enrollments ?? initialState.enrollments,
     selectedScenarioId: state?.selectedScenarioId ?? initialState.selectedScenarioId,
     settings: {
       subjectsPerSemester:

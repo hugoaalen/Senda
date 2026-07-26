@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { AppState, Scenario, Subject, SubjectStatus, ThemeMode } from '../types';
+import type { AppState, Enrollment, Scenario, Subject, SubjectStatus, ThemeMode } from '../types';
 import { getProgressStats } from '../lib/stats';
 import {
   firebaseReady,
@@ -125,6 +125,51 @@ export function useSendaState() {
     setState((current) => ({ ...current, selectedScenarioId: scenarioId }));
   };
 
+  const createEnrollment = () => {
+    const enrollment: Enrollment = {
+      id: crypto.randomUUID(),
+      period: 'Nueva matrícula',
+      subjectIds: [],
+    };
+    setState((current) => ({
+      ...current,
+      enrollments: [enrollment, ...current.enrollments],
+    }));
+    return enrollment.id;
+  };
+
+  const updateEnrollment = (enrollmentId: string, patch: Partial<Enrollment>) => {
+    setState((current) => ({
+      ...current,
+      enrollments: current.enrollments.map((enrollment) =>
+        enrollment.id === enrollmentId ? { ...enrollment, ...patch } : enrollment,
+      ),
+    }));
+  };
+
+  const deleteEnrollment = (enrollmentId: string) => {
+    setState((current) => ({
+      ...current,
+      enrollments: current.enrollments.filter((enrollment) => enrollment.id !== enrollmentId),
+    }));
+  };
+
+  const toggleSubjectInEnrollment = (enrollmentId: string, subjectId: string) => {
+    setState((current) => ({
+      ...current,
+      enrollments: current.enrollments.map((enrollment) => {
+        if (enrollment.id !== enrollmentId) return enrollment;
+        const exists = enrollment.subjectIds.includes(subjectId);
+        return {
+          ...enrollment,
+          subjectIds: exists
+            ? enrollment.subjectIds.filter((id) => id !== subjectId)
+            : [...enrollment.subjectIds, subjectId],
+        };
+      }),
+    }));
+  };
+
   const updateSubjectsPerSemester = (subjectsPerSemester: number) => {
     setState((current) => ({
       ...current,
@@ -187,6 +232,10 @@ export function useSendaState() {
     updateScenario,
     toggleSubjectInScenario,
     selectScenario,
+    createEnrollment,
+    updateEnrollment,
+    deleteEnrollment,
+    toggleSubjectInEnrollment,
     updateSubjectsPerSemester,
     updateThemeMode,
     resetToBaseState,
