@@ -3,6 +3,7 @@ import {
   getAuth,
   GoogleAuthProvider,
   onAuthStateChanged,
+  signInWithRedirect,
   signInWithPopup,
   signOut as firebaseSignOut,
   type User,
@@ -103,7 +104,25 @@ export function subscribeToAuth(callback: (user: User | null) => void) {
 export async function signInWithGoogle() {
   if (!auth) return;
   const provider = new GoogleAuthProvider();
-  await signInWithPopup(auth, provider);
+
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (error) {
+    if (getFirebaseErrorCode(error) !== 'auth/popup-blocked') {
+      throw error;
+    }
+
+    await signInWithRedirect(auth, provider);
+  }
+}
+
+function getFirebaseErrorCode(error: unknown) {
+  if (typeof error === 'object' && error !== null && 'code' in error) {
+    const { code } = error as { code?: unknown };
+    return typeof code === 'string' ? code : undefined;
+  }
+
+  return undefined;
 }
 
 export async function signOutRemote() {
