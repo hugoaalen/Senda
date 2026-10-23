@@ -3,6 +3,7 @@ import type { AppState, Enrollment, Scenario, Subject, SubjectStatus, ThemeMode 
 import { getProgressStats } from '../lib/stats';
 import {
   firebaseReady,
+  completeGoogleRedirect,
   getBaseState,
   loadLocalState,
   loadRemoteState,
@@ -41,6 +42,10 @@ export function useSendaState() {
 
   useEffect(() => {
     if (!firebaseReady) return;
+
+    void completeGoogleRedirect().catch((error: unknown) => {
+      setAuthMessage(error instanceof Error ? error.message : 'No se pudo completar el acceso con Google.');
+    });
 
     return subscribeToAuth((user) => {
       setUserId(user?.uid ?? null);

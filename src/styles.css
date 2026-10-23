@@ -1,8 +1,8 @@
 :root {
   color-scheme: light;
-  --app-bg: #f7f2e8;
-  --surface: #fffaf0;
-  --surface-strong: #fffdf8;
+  --app-bg: #f3f5f6;
+  --surface: #ffffff;
+  --surface-strong: #f8fafb;
   --surface-muted: #edf1e6;
   --hero-bg: #e2eed8;
   --text: #15211a;
@@ -11,9 +11,9 @@
   --muted-strong: #425045;
   --border: rgba(21, 33, 26, 0.12);
   --border-strong: rgba(21, 33, 26, 0.14);
-  --shadow: 0 12px 30px rgba(21, 33, 26, 0.07);
+  --shadow: 0 2px 6px rgba(21, 33, 26, 0.035);
   --accent: #1d6f4c;
-  --accent-contrast: #f8f3ea;
+  --accent-contrast: #ffffff;
   --active-accent: #d98124;
   --danger: #b44b32;
   --danger-soft: #ffe9df;
@@ -24,7 +24,7 @@
   --selected-border: #bfd1b8;
   --selected-text: #132018;
   --selected-muted: #516055;
-  --track: #e1dfd3;
+  --track: #e3e8e9;
   --info-bg: #e4eef7;
   --info-text: #1d4f7a;
   color: var(--text);
@@ -1143,4 +1143,45 @@ input {
   .tabs {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* Shared workspace hierarchy and interaction states. */
+.app-shell { width: min(1200px, 100%); padding: 28px 24px 48px; }
+.topbar { padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+h1 { font-size: 2.4rem; letter-spacing: 0; }
+h2 { font-size: 1.15rem; line-height: 1.4; }
+.eyebrow { text-transform: none; font-weight: 650; }
+.tabs { margin-bottom: 10px; padding-top: 14px; }
+.tabs button { min-height: 48px; box-shadow: none; }
+.stack { gap: 22px; }
+.panel { padding: 22px; box-shadow: none; }
+.hero-panel { background: var(--surface); box-shadow: none; border-top: 3px solid var(--accent); }
+.progress-number { font-size: 4.5rem; font-variant-numeric: tabular-nums; }
+.radial { background: radial-gradient(circle at center, var(--surface) 0 60%, transparent 61%), conic-gradient(var(--accent) var(--progress), var(--active-accent) var(--progress) var(--active-progress), var(--track) 0); }
+.hero-panel .active-credit-note { color: var(--active-accent); }
+.metric-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.metric { box-shadow: none; min-height: 94px; }
+.metric strong { font-size: 1.65rem; font-variant-numeric: tabular-nums; }
+.metric span { font-weight: 600; line-height: 1.4; }
+.type-progress-grid { gap: 18px; }
+.type-progress { border: 0; border-radius: 0; border-left: 3px solid var(--border); background: transparent; }
+.subject-card { box-shadow: none; }
+.subject-controls span, .field span { text-transform: none; font-weight: 650; }
+.picker.selected { border: 2px solid var(--accent); padding: 9px 11px; background: var(--selected-bg); }
+.picker.selected::after { content: 'Seleccionada'; color: var(--accent); font-size: 0.75rem; font-weight: 750; }
+button, input, select { min-height: 44px; }
+button { transition: border-color 140ms ease, background-color 140ms ease; }
+button:hover { border-color: var(--accent); }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.enrollment-subject { box-shadow: none; }
+@media (max-width: 760px) {
+  .app-shell { padding: 16px 12px 32px; }
+  .panel { padding: 18px; }
+  .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stack { gap: 16px; }
+  .topbar { padding-bottom: 18px; }
+  .progress-number { font-size: 3.6rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
 }

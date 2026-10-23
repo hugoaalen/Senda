@@ -1,6 +1,7 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import {
   getAuth,
+  getRedirectResult,
   GoogleAuthProvider,
   onAuthStateChanged,
   signInWithRedirect,
@@ -32,6 +33,11 @@ const firebaseConfig = {
 
 const hasFirebaseConfig = Object.values(firebaseConfig).every(Boolean);
 
+// Vercel proxies Firebase's auth helper on the application's own origin.
+if (import.meta.env.PROD && firebaseConfig.authDomain) {
+  firebaseConfig.authDomain = window.location.host;
+}
+
 export const firebaseApp: FirebaseApp | null = hasFirebaseConfig
   ? initializeApp(firebaseConfig)
   : null;
@@ -41,6 +47,10 @@ export const db: Firestore | null = firebaseApp
   ? initializeFirestore(firebaseApp, { ignoreUndefinedProperties: true })
   : null;
 export const firebaseReady = Boolean(firebaseApp && auth && db);
+
+export async function completeGoogleRedirect() {
+  if (auth) await getRedirectResult(auth);
+}
 
 export function getBaseState(): AppState {
   return normalizeState(structuredClone(initialState));

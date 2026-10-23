@@ -106,6 +106,12 @@ Configuracion recomendada:
 
 Tambien hay que añadir en Vercel las mismas variables `VITE_FIREBASE_*` usadas en local.
 
+### Google en navegadores restrictivos
+
+`vercel.json` sirve los endpoints `/__/auth/*` desde Firebase bajo el dominio de la app. En produccion, el SDK usa ese mismo dominio para evitar depender del almacenamiento de terceros.
+
+Antes de desplegar, añade el dominio de produccion en Firebase Authentication > Settings > Authorized domains y registra `https://TU-DOMINIO/__/auth/handler` en Google Cloud > APIs y servicios > Credenciales > Cliente OAuth web > URIs de redireccion autorizados. Repite para cada dominio desde el que quieras iniciar sesion. El proxy apunta al proyecto `senda-31c55`; actualizalo si cambias de proyecto Firebase.
+
 ## Estado del proyecto
 
 Senda esta pensada como una herramienta personal, pero preparada para que otra persona pueda entrar con su propia cuenta y empezar desde la plantilla inicial sin ver datos ajenos.
