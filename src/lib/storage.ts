@@ -111,6 +111,11 @@ export async function signInWithGoogle() {
   if (!auth) return;
   const provider = new GoogleAuthProvider();
 
+  if (firebaseConfig.authDomain === window.location.host) {
+    await signInWithRedirect(auth, provider);
+    return;
+  }
+
   try {
     await signInWithPopup(auth, provider);
   } catch (error) {
@@ -119,10 +124,7 @@ export async function signInWithGoogle() {
       throw error;
     }
 
-    if (firebaseConfig.authDomain !== window.location.host) {
-      throw new Error('No se pudo abrir el acceso con Google. Permite ventanas emergentes para Senda y vuelve a intentarlo.');
-    }
-    await signInWithRedirect(auth, provider);
+    throw new Error('No se pudo abrir el acceso con Google. Permite ventanas emergentes para Senda y vuelve a intentarlo.');
   }
 }
 
