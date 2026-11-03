@@ -108,7 +108,7 @@ Tambien hay que añadir en Vercel las mismas variables `VITE_FIREBASE_*` usadas 
 
 ### Google en navegadores restrictivos
 
-`vercel.json` sirve los endpoints `/__/auth/*` desde Firebase bajo el dominio de la app. En produccion, el SDK usa ese mismo dominio para evitar depender del almacenamiento de terceros.
+`vercel.json` sirve los endpoints `/__/auth/*` desde Firebase bajo el dominio de la app. Para activar esta configuracion, pon `VITE_FIREBASE_AUTH_DOMAIN=TU-DOMINIO` en Vercel (sin protocolo ni ruta). En local conserva el dominio Firebase original.
 
 Antes de desplegar, añade el dominio de produccion en Firebase Authentication > Settings > Authorized domains y registra `https://TU-DOMINIO/__/auth/handler` en Google Cloud > APIs y servicios > Credenciales > Cliente OAuth web > URIs de redireccion autorizados. Repite para cada dominio desde el que quieras iniciar sesion. El proxy apunta al proyecto `senda-31c55`; actualizalo si cambias de proyecto Firebase.
 

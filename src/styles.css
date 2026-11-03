@@ -1175,7 +1175,7 @@ button:hover { border-color: var(--accent); }
 button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .enrollment-subject { box-shadow: none; }
 @media (max-width: 760px) {
-  .app-shell { padding: 16px 12px 32px; }
+  .app-shell { padding: 20px 20px calc(36px + env(safe-area-inset-bottom)); }
   .panel { padding: 18px; }
   .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .stack { gap: 16px; }
@@ -1184,4 +1184,16 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+.view-heading { margin-bottom: 16px; }
+.subject-editor summary, .enrollment-card summary { cursor: pointer; padding-block: 12px; }
+.enrollment-card { display: block; }
+.enrollment-card > summary { font-weight: 750; }
+.enrollment-card[open] > summary { margin-bottom: 14px; border-bottom: 1px solid var(--border); }
+.overload-note { color: var(--danger-text); margin-top: 12px; }
+.subject-controls { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr) auto; }
+@media (max-width: 760px) {
+  .subject-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .section-title { flex-wrap: wrap; }
 }

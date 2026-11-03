@@ -33,10 +33,6 @@ const firebaseConfig = {
 
 const hasFirebaseConfig = Object.values(firebaseConfig).every(Boolean);
 
-// Vercel proxies Firebase's auth helper on the application's own origin.
-if (import.meta.env.PROD && firebaseConfig.authDomain) {
-  firebaseConfig.authDomain = window.location.host;
-}
 
 export const firebaseApp: FirebaseApp | null = hasFirebaseConfig
   ? initializeApp(firebaseConfig)
@@ -118,10 +114,14 @@ export async function signInWithGoogle() {
   try {
     await signInWithPopup(auth, provider);
   } catch (error) {
-    if (getFirebaseErrorCode(error) !== 'auth/popup-blocked') {
+    const code = getFirebaseErrorCode(error);
+    if (code !== 'auth/popup-blocked' && code !== 'auth/web-storage-unsupported') {
       throw error;
     }
 
+    if (firebaseConfig.authDomain !== window.location.host) {
+      throw new Error('No se pudo abrir el acceso con Google. Permite ventanas emergentes para Senda y vuelve a intentarlo.');
+    }
     await signInWithRedirect(auth, provider);
   }
 }
