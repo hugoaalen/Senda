@@ -121,7 +121,7 @@ function App() {
   );
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell workspace-${tab}`}>
       <header className="topbar">
         <div>
           <p className="eyebrow">Ingeniería Informática</p>
@@ -147,6 +147,8 @@ function App() {
           <BookMarked size={18} /> Matrículas
         </button>
       </nav>
+
+      <h2 className="view-heading">{{ dashboard: 'Progreso académico', subjects: 'Asignaturas', scenarios: 'Planificación', enrollments: 'Historial de matrículas' }[tab]}</h2>
 
       {tab === 'dashboard' && (
         <section className="stack">
@@ -434,6 +436,7 @@ function App() {
               <Metric label="Créditos" value={scenarioLoad.credits} />
               <Metric label="Horas/sem" value={scenarioLoad.hours} />
             </div>
+            {scenarioLoad.overload > 0 && <p className="overload-note">+{formatDecimal(scenarioLoad.overload)} h/sem sobre tu capacidad</p>}
           </section>
 
           <section className="panel">
@@ -533,7 +536,8 @@ function App() {
             const editing = editingEnrollmentId === enrollment.id;
 
             return (
-              <section className="panel enrollment-card" key={enrollment.id}>
+              <details className="panel enrollment-card" key={enrollment.id} open={editing || undefined}>
+                <summary>{enrollment.period || 'Sin periodo'} · {credits} créditos</summary>
                 <div className="enrollment-toolbar">
                   <label className="field enrollment-period">
                     <span>Periodo</span>
@@ -631,7 +635,7 @@ function App() {
                     })}
                   </div>
                 )}
-              </section>
+              </details>
             );
           })}
         </section>
@@ -767,7 +771,9 @@ function SubjectCard({
           {subject.recommended && <small>Recomendado: {subject.recommended}</small>}
         </div>
       </div>
-      <div className="subject-controls">
+      <details className="subject-editor">
+        <summary>{statusLabel[subject.status]} · Editar</summary>
+        <div className="subject-controls">
         <select value={subject.status} onChange={(event) => onStatusChange(event.target.value as SubjectStatus)}>
           <option value="pending">Pendiente</option>
           <option value="active">Cursando</option>
@@ -810,6 +816,7 @@ function SubjectCard({
           />
         </label>
       </div>
+      </details>
     </article>
   );
 }
